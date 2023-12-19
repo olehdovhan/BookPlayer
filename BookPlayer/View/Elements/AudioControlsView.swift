@@ -4,16 +4,17 @@
 //
 //  Created by Oleh Dovhan on 18.12.2023.
 //
-
+import ComposableArchitecture
 import SwiftUI
 
-struct AudioControlsView: View {
+struct AudioControlsView: ViewStoreViewProtocol {
+    
+    var viewStore: ComposableArchitecture.ViewStore<BookFeature.State, BookFeature.Action>
     
     @State private var chapterNumber = 0
     
     var totalChaptersCount = 3
     
-    @State private var isPlaying = false 
     
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
@@ -32,9 +33,9 @@ struct AudioControlsView: View {
             Spacer()
             
             Button(action: {
-                isPlaying.toggle()
+                viewStore.send(.playButtonTapped)
             }) {
-                Image(systemName: isPlaying ? "pause.fill" : "play.fill")
+                Image(systemName: viewStore.mode.is(\.playing) ? "pause.fill" : "play.fill")
                     .font(.system(size: 46))
                     .frame(width: 50,height: 50)
             }
@@ -64,6 +65,6 @@ struct AudioControlsView: View {
     }
 }
 
-#Preview {
-    AudioControlsView()
-}
+//#Preview {
+//    AudioControlsView(viewStore: ViewStore)
+//}

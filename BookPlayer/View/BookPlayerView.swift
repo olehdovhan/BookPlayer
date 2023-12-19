@@ -5,32 +5,46 @@
 //  Created by Oleh Dovhan on 18.12.2023.
 //
 
+import ComposableArchitecture
 import SwiftUI
 
+protocol ViewStoreViewProtocol: View {
+    var viewStore: ViewStore<BookFeature.State, BookFeature.Action> { get set }
+}
+
 struct BookPlayerView: View {
+    
+    let store: StoreOf<BookFeature>
+    
     var body: some View {
-        VStack {
-            ZStack {
-                Color.backgroundColor
-                VStack {
-                    CoverImageView(coverImage: Image(systemName: "book"))
-                    ChapterInfoView()
-                    SliderView()
-                    SpeedChangerView()
-                    AudioControlsView()
-                    DummyToggleView()
+        WithViewStore(self.store, observe: { $0 }) { viewStore in
+          
+                ZStack {
+                    Color.backgroundColor
+                    VStack {
+                        CoverImageView(coverImage: Image(systemName: "book"))
+                        ChapterInfoView()
+                        SliderView()
+                        SpeedChangerView()
+                        AudioControlsView(viewStore: viewStore)
+                        DummyToggleView()
+                    }
+                    .padding(0)
+                    .foregroundColor(.black)
+                    
                 }
-                .padding(0)
-                .foregroundColor(.black)
-                
-            }
+                .alert(store: self.store.scope(state: \.$alert, action: \.alert))
+                .padding()
         }
-        .padding()
     }
 }
 
 #Preview {
-    BookPlayerView()
+    BookPlayerView(store: Store(
+        initialState: BookFeature.State()
+    ) {
+        BookFeature()
+    })
 }
 
 extension Color {
