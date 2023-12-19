@@ -15,19 +15,16 @@ struct Book {
 
 struct PreviewView: View {
     
-    @State private var store = Store(initialState: BookFeature.State(chapters: [])) { BookFeature() }
+    static var store = Store(initialState: BookFeature.State(chapters: [])) { BookFeature() }
+    
+    //@State private var store = Store(initialState: BookFeature.State(chapters: [])) { BookFeature() }
     
     @State private var isMainViewShowed = false
 
     @State private var alertIsShowed = false
     
     var body: some View {
-        NavigationView {
             ZStack {
-                NavigationLink("", isActive: $isMainViewShowed) {
-                    BookPlayerView(store: store)
-                }
-                
                 VStack {
                     Spacer()
                     Text("Choose book:")
@@ -50,10 +47,9 @@ struct PreviewView: View {
             .alert("Metadata load error", isPresented: $alertIsShowed) {
                 Button("OK", role: .cancel) {}
             }
-        }
-        .onAppear {
-            MediaService.shared.setPlayingInSilentMode()
-        }
+            .fullScreenCover(isPresented: $isMainViewShowed) {
+                BookPlayerView(store: PreviewView.store)
+            }
     }
     
     private func getMetadata(_ url: URL) async {
@@ -64,7 +60,7 @@ struct PreviewView: View {
          alertIsShowed = true
             return }
         
-        self.store = Store(initialState: BookFeature.State(url: url,
+        PreviewView.store = Store(initialState: BookFeature.State(url: url,
                                                            coverImage: Image(uiImage: book.image),
                                                           chapters: book.chapters )) { BookFeature()._printChanges()}
          isMainViewShowed = true

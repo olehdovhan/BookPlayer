@@ -16,11 +16,14 @@ struct BookPlayerView: View {
     
     let store: StoreOf<BookFeature>
     
+    @Environment(\.dismiss) var dismiss
+    
     var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
                 ZStack {
-                    Color.backgroundColor
+                    Color.backgroundColor.ignoresSafeArea(.all)
                     VStack {
+                        DismissButton { dismiss() }
                         CoverImageView(coverImage: viewStore.coverImage)
                         ChapterInfoView(viewStore: viewStore)
                         SliderView(viewStore: viewStore)
@@ -30,14 +33,15 @@ struct BookPlayerView: View {
                     }
                     .padding(0)
                     .foregroundColor(.black)
+     
                 }
-                .padding()
                 .alert(store: self.store.scope(state: \.$alert, action: \.alert))
                 .onDisappear {
                     viewStore.send(.stopPlayer)
                 }
         }
     }
+
 }
 
 #Preview {

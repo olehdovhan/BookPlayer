@@ -13,6 +13,9 @@ struct BookPlayerApp: App {
     var body: some Scene {
         WindowGroup {
             PreviewView()
+                .onAppear {
+                    MediaService.shared.setPlayingInSilentMode()
+                }
         }
     }
 }
