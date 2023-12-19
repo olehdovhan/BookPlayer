@@ -18,20 +18,18 @@ struct BookPlayerView: View {
     
     var body: some View {
         WithViewStore(self.store, observe: { $0 }) { viewStore in
-          
                 ZStack {
                     Color.backgroundColor
                     VStack {
-                        CoverImageView(coverImage: Image(systemName: "book"))
-                        ChapterInfoView()
-                        SliderView()
+                        CoverImageView(coverImage: viewStore.coverImage)
+                        ChapterInfoView(viewStore: viewStore)
+                        SliderView(viewStore: viewStore)
                         SpeedChangerView(viewStore: viewStore)
                         AudioControlsView(viewStore: viewStore)
                         DummyToggleView()
                     }
                     .padding(0)
                     .foregroundColor(.black)
-                    
                 }
                 .alert(store: self.store.scope(state: \.$alert, action: \.alert))
                 .padding()
@@ -41,7 +39,7 @@ struct BookPlayerView: View {
 
 #Preview {
     BookPlayerView(store: Store(
-        initialState: BookFeature.State(chapters: [])
+        initialState: BookFeature.State( chapters: Chapter.mock)
     ) {
         BookFeature()
     })

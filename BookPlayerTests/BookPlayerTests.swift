@@ -17,7 +17,7 @@ final class BookPlayerTests: XCTestCase {
     func testPlayHappyPath() async {
         let currentTime = ActorIsolated(0.0)
         let store = TestStore(
-            initialState: BookFeature.State(duration: 1.25)
+            initialState: BookFeature.State(duration: 1.25, chapters: Chapter.mock)
         ) {
             BookFeature()
         } withDependencies: {
@@ -58,7 +58,7 @@ final class BookPlayerTests: XCTestCase {
         struct SomeError: Error, Equatable {}
         
         let store = TestStore(
-            initialState: BookFeature.State()
+            initialState: BookFeature.State(chapters: Chapter.mock)
         ) {
             BookFeature()
         } withDependencies: {
@@ -78,7 +78,7 @@ final class BookPlayerTests: XCTestCase {
     
     func testPause() async {
         let store = TestStore(
-            initialState: BookFeature.State(mode: .playing(progress: 0))
+            initialState: BookFeature.State(mode: .playing(progress: 0), chapters: Chapter.mock)
         ) {
             BookFeature()
         } withDependencies: {
@@ -91,7 +91,7 @@ final class BookPlayerTests: XCTestCase {
     
     func testChangePlaybackSpeed() async {
         
-        let store = TestStore(initialState: BookFeature.State()){
+        let store = TestStore(initialState: BookFeature.State(chapters: Chapter.mock)){
             BookFeature()
         } withDependencies: {
             $0.audioPlayer.changePlaybackSpeed = { float in }
@@ -119,4 +119,30 @@ final class BookPlayerTests: XCTestCase {
             $0.playbackSpeed = 1.0
         }
    }
+    
+    func testSwitchToNextChapter() async {
+        let store = TestStore(initialState: BookFeature.State(chapters: Chapter.mock,
+                                                              currentChapterIndex: 0)){
+            BookFeature()
+        }  withDependencies: {
+            $0.audioPlayer.seekTo = { time in }
+        }
+        await store.send(.nextChapter) {
+            $0.currentChapterIndex = 1
+            $0.bookCurrentTime = 1.25
+        }
+    }
+    
+    func testSwitchToPreviousChapter() async {
+        let store = TestStore(initialState: BookFeature.State(chapters: Chapter.mock, 
+                                                              currentChapterIndex: 1)){
+            BookFeature()
+        }  withDependencies: {
+            $0.audioPlayer.seekTo = { time in }
+        }
+        await store.send(.previousChapter) {
+            $0.currentChapterIndex = 0
+            $0.bookCurrentTime = 0.00
+        }
+    }
 }

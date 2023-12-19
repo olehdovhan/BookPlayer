@@ -22,6 +22,18 @@ struct BookFeature {
         var coverImage = Image(systemName: "book")
 
         var chapters: [Chapter]
+        var currentChapterIndex = 0
+        var currentChapter: Chapter {
+            return chapters[currentChapterIndex]
+        }
+        var chapterCurrentTime: Double {
+            return bookCurrentTime - currentChapter.start
+        }
+        
+        var currentChapterTitle: String {
+            guard (chapters.count - 1) >= currentChapterIndex  else { return "" }
+            return currentChapter.title
+        }
         
         @CasePathable
         @dynamicMemberLookup
@@ -38,6 +50,8 @@ struct BookFeature {
         case playButtonTapped
         case timerUpdated(TimeInterval)
         case changePlaybackSpeed
+        case nextChapter
+        case previousChapter
 
         enum Alert: Equatable {}
     }
@@ -112,6 +126,22 @@ struct BookFeature {
                 return .run
                 { [speed = state.playbackSpeed] send in
                     await self.audioPlayer.changePlaybackSpeed(speed)
+                }
+            case .nextChapter:
+                if state.chapters.count > state.currentChapterIndex + 1 {
+                    state.currentChapterIndex += 1
+                    state.bookCurrentTime = state.currentChapter.start
+                }
+                return .run { [seekTime = state.currentChapter.start] _ in
+                        await self.audioPlayer.seekTo(seekTime)
+                }
+            case .previousChapter:
+                if state.currentChapterIndex > 0 {
+                    state.currentChapterIndex -= 1
+                    state.bookCurrentTime = state.currentChapter.start
+                }
+                return .run { [seekTime = state.currentChapter.start] _ in
+                        await self.audioPlayer.seekTo(seekTime)
                 }
             }
         }

@@ -11,19 +11,21 @@ struct AudioControlsView: ViewStoreViewProtocol {
     
     var viewStore: ComposableArchitecture.ViewStore<BookFeature.State, BookFeature.Action>
     
-    @State private var chapterNumber = 0
+  //  @State private var chapterNumber = 0
     
-    var totalChaptersCount = 3
+   // var totalChaptersCount = 3
     
     
     var body: some View {
         HStack(alignment: .center, spacing: 10) {
-            Button(action: { }) {
+            Button(action: {
+                viewStore.send(.previousChapter)
+            }) {
                 Image(systemName: "backward.end.fill")
                     .font(.system(size: 28, weight: .thin))
-                    .foregroundColor(chapterNumber == 0 ? .gray : .black)
+                    .foregroundColor(viewStore.currentChapterIndex == 0 ? .gray : .black)
             }
-            .disabled(chapterNumber == 0)
+            .disabled(viewStore.currentChapterIndex == 0)
             
             Spacer()
             Button(action: { }) {
@@ -49,13 +51,12 @@ struct AudioControlsView: ViewStoreViewProtocol {
             Spacer()
             
             Button(action: {
-                chapterNumber += 1
-            }) {
+                viewStore.send(.nextChapter)            }) {
                 Image(systemName: "forward.end.fill")
                     .font(.system(size: 28, weight: .thin))
-                    .foregroundColor(chapterNumber == (totalChaptersCount - 1) ? .gray : .black)
+                    .foregroundColor(viewStore.currentChapterIndex == (viewStore.chapters.count - 1) ? .gray : .black)
             }
-            .disabled(chapterNumber == (totalChaptersCount - 1))
+            .disabled(viewStore.currentChapterIndex == (viewStore.chapters.count - 1))
         }
         .padding(.vertical, 20)
         .padding(.horizontal, 60)

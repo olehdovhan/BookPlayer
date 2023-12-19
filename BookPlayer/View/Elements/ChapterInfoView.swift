@@ -4,19 +4,21 @@
 //
 //  Created by Oleh Dovhan on 18.12.2023.
 //
-
+import ComposableArchitecture
 import SwiftUI
 
-struct ChapterInfoView: View {
+struct ChapterInfoView: ViewStoreViewProtocol {
+    
+    var viewStore: ComposableArchitecture.ViewStore<BookFeature.State, BookFeature.Action>
     
         var body: some View {
             VStack {
-                Text("Key point 1 of 7")
+                Text("Key point \(viewStore.currentChapter.chapterIndex) of \(viewStore.chapters.count)")
                     .font(.system(size: 14, weight: .semibold, design: .default))
                     .foregroundColor(.gray)
                     .textCase(.uppercase)
 
-                Text("Chapter title")
+                Text(viewStore.currentChapter.title)
                     .multilineTextAlignment(.center)
                     .font(.system(size: 15, weight: .regular))
                     .lineLimit(0)
@@ -28,5 +30,11 @@ struct ChapterInfoView: View {
 }
 
 #Preview {
-    ChapterInfoView()
+    WithViewStore( Store(
+        initialState: BookFeature.State(chapters: [])
+    ) {
+        BookFeature()
+    }, observe: { $0 }) { viewStore in
+        ChapterInfoView(viewStore: viewStore)
+    }
 }

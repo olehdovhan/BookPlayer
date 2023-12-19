@@ -21,4 +21,16 @@ struct Chapter: Equatable {
         self.end = end
         self.duration = duration
     }
+    
+    static let mock = [Chapter(title: "first Chapter",
+                               chapterNumber: 1,
+                               start: 0.0 ,
+                               end: 1.25,
+                               duration: 1.25),
+                       
+                       Chapter(title: "second Chapter",
+                               chapterNumber: 2,
+                               start: 1.25,
+                               end: 2.25 ,
+                               duration: 1.25)]
 }

@@ -5,11 +5,8 @@
 //  Created by Oleh Dovhan on 19.12.2023.
 //
 
-
 import ComposableArchitecture
 import SwiftUI
-
-
 
 enum Books: String, CaseIterable{
     case seagull = "JonathanLivingstonSeagull"

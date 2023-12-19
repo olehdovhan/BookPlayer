@@ -4,10 +4,12 @@
 //
 //  Created by Oleh Dovhan on 18.12.2023.
 //
-
+import ComposableArchitecture
 import SwiftUI
 
-struct SliderView: View {
+struct SliderView: ViewStoreViewProtocol {
+    
+    var viewStore: ComposableArchitecture.ViewStore<BookFeature.State, BookFeature.Action>
     
     let dateComponentsFormatter: DateComponentsFormatter = {
       let formatter = DateComponentsFormatter()
@@ -21,7 +23,7 @@ struct SliderView: View {
     var body: some View {
         HStack(spacing: 5) {
             
-            dateComponentsFormatter.string(from: 12.0).map {
+            dateComponentsFormatter.string(from: viewStore.chapterCurrentTime).map {
                 Text($0)
                     .font(.footnote.monospacedDigit())
             }
@@ -34,7 +36,7 @@ struct SliderView: View {
             .onAppear {
                 UISlider.appearance().setThumbImage(UIImage(systemName: "circle.fill"), for: .normal)
             }
-            dateComponentsFormatter.string(from: 30).map {
+            dateComponentsFormatter.string(from: viewStore.currentChapter.duration).map {
                 Text($0)
                     .font(.footnote.monospacedDigit())
             }
@@ -44,6 +46,6 @@ struct SliderView: View {
     }
 }
 
-#Preview {
-    SliderView()
-}
+//#Preview {
+//    SliderView()
+//}
