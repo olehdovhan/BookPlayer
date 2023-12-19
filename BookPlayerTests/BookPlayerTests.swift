@@ -17,7 +17,8 @@ final class BookPlayerTests: XCTestCase {
     func testPlayHappyPath() async {
         let currentTime = ActorIsolated(0.0)
         let store = TestStore(
-            initialState: BookFeature.State(duration: 1.25, chapters: Chapter.mock)
+            initialState: BookFeature.State(duration: 1.25, 
+                                            chapters: Chapter.mock)
         ) {
             BookFeature()
         } withDependencies: {
@@ -38,19 +39,25 @@ final class BookPlayerTests: XCTestCase {
         await self.clock.advance(by: .milliseconds(500))
         await store.receive(\.timerUpdated) {
             $0.mode = .playing(progress: 0.4)
+            $0.progress = 0.4
             $0.bookCurrentTime = 0.5
         }
         await self.clock.advance(by: .milliseconds(500))
         await store.receive(\.timerUpdated) {
             $0.mode = .playing(progress: 0.8)
+            $0.progress = 0.8
             $0.bookCurrentTime = 1.0
         }
 
         await self.clock.advance(by: .milliseconds(250))
         await store.receive(\.audioPlayerClient.success) {
+            
+            $0.currentChapterIndex = 0
+            $0.progress = 0.0
             $0.bookCurrentTime = 0.0
             $0.mode = .notPlaying
             $0.alert = AlertState { TextState("Congratulations! \n You have finished listening current book.") }
+
         }
     }
     
@@ -143,6 +150,75 @@ final class BookPlayerTests: XCTestCase {
         await store.send(.previousChapter) {
             $0.currentChapterIndex = 0
             $0.bookCurrentTime = 0.00
+        }
+    }
+    
+    func testCurrentTimeOnChangePlaybackSpeed() async {
+        let currentTime = ActorIsolated(0.0)
+        let playbackSpeed = ActorIsolated(0.0)
+        let store = TestStore(initialState: BookFeature.State(duration: 1.25,
+                                                              chapters: Chapter.mock))
+        {
+            BookFeature()
+        } withDependencies: {
+            $0.audioPlayer.preparePlayer = { _,_ in
+                try await self.clock.sleep(for: .milliseconds(1_250))
+                return true
+            }
+            $0.continuousClock = self.clock
+          
+            $0.audioPlayer.currentTime = {
+                await  currentTime.withValue { [speed = playbackSpeed.value] in
+                    $0 += (0.5 * speed)
+                }
+                return await currentTime.value }
+            
+            $0.audioPlayer.changePlaybackSpeed = { float in
+                await playbackSpeed.withValue { $0 = Double(float) }
+            }
+        }
+        
+        await store.send(.playButtonTapped) {
+            $0.mode = .playing(progress: 0)
+        }
+        
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 1.25
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 1.5
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 1.75
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 2.0
+        }
+        
+        await self.clock.advance(by: .milliseconds(500))
+        await store.receive(\.timerUpdated) {
+            $0.mode = .playing(progress: 0.8)
+            $0.progress = 0.8
+            $0.bookCurrentTime = 1.0
+        }
+        
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 0.5
+        }
+        await self.clock.advance(by: .milliseconds(500))
+        await store.receive(\.timerUpdated) {
+            $0.mode = .playing(progress: 1.0)
+            $0.progress = 1.0
+            $0.bookCurrentTime = 1.25
+        }
+        
+        await self.clock.advance(by: .milliseconds(250))
+        await store.receive(\.audioPlayerClient.success) {
+            $0.currentChapterIndex = 0
+            $0.progress = 0.0
+            $0.bookCurrentTime = 0.0
+            $0.mode = .notPlaying
+            $0.alert = AlertState { TextState("Congratulations! \n You have finished listening current book.") }
         }
     }
 }

@@ -29,9 +29,11 @@ struct SliderView: ViewStoreViewProtocol {
             }
             
             Slider(
-                value: $progress,
+                value: viewStore.binding(get: { $0.progress }, send: { .progressChanged($0) }),
                 in: 0.0...1.0,
-                onEditingChanged: { isEditing in  }
+                onEditingChanged: { isEditing in
+                    viewStore.send(.updateSliderStatus(isEditing))
+                }
             )
             .onAppear {
                 UISlider.appearance().setThumbImage(UIImage(systemName: "circle.fill"), for: .normal)

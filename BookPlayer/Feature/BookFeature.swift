@@ -35,6 +35,9 @@ struct BookFeature {
             return currentChapter.title
         }
         
+        var progress: Double = 0.0
+        var sliderIsDragging = false
+        
         @CasePathable
         @dynamicMemberLookup
         enum Mode: Equatable {
@@ -52,6 +55,8 @@ struct BookFeature {
         case changePlaybackSpeed
         case nextChapter
         case previousChapter
+        case progressChanged(Double)
+        case updateSliderStatus(Bool)
 
         enum Alert: Equatable {}
     }
@@ -73,6 +78,8 @@ struct BookFeature {
                 return  .cancel(id: CancelID.play)
 
             case .audioPlayerClient:
+                state.currentChapterIndex = 0
+                state.progress = 0.0
                 state.bookCurrentTime = 0.0
                 state.alert = AlertState { TextState("Congratulations! \n You have finished listening current book.") }
                 state.mode = .notPlaying
@@ -115,7 +122,18 @@ struct BookFeature {
                     break
                 case .playing:
                     state.bookCurrentTime = totalTime
-                    state.mode = .playing(progress: state.bookCurrentTime / state.duration)
+                    let newProgress = state.chapterCurrentTime / state.currentChapter.duration
+                    if !state.sliderIsDragging {
+                        state.progress = newProgress
+                        }
+                    state.mode = .playing(progress: newProgress)
+
+                 if state.chapters.count > state.currentChapterIndex + 1 {
+                       let start = state.chapters[state.currentChapterIndex + 1].start
+                        if  totalTime > start {
+                               state.currentChapterIndex += 1
+                           }
+                    }
                 case .pause:
                     break
                 }
@@ -143,6 +161,18 @@ struct BookFeature {
                 return .run { [seekTime = state.currentChapter.start] _ in
                         await self.audioPlayer.seekTo(seekTime)
                 }
+            case .progressChanged(let newProgress):
+                state.progress = newProgress
+                let currentTime = MediaService.shared.progressToCMTime(value: newProgress,
+                                                                      duration: Double(state.currentChapter.duration)).seconds
+                let seekToTime = currentTime + state.currentChapter.start
+                state.bookCurrentTime = seekToTime
+                return .run { [seekToTime] send in
+                    await self.audioPlayer.seekTo(seekToTime)
+                }
+            case let .updateSliderStatus(isDragging):
+                state.sliderIsDragging = isDragging
+                return .none
             }
         }
         .ifLet(\.$alert, action: \.alert)
