@@ -12,7 +12,6 @@ import SwiftUI
 
 
 enum Books: String, CaseIterable{
-    case callOfTheWild = "CallOfTheWild"
     case seagull = "JonathanLivingstonSeagull"
     case cleanCode = "CleanCode"
 }
@@ -28,7 +27,6 @@ extension Books {
     
     var name: String {
         switch self {
-        case .callOfTheWild: return "Jack London - Call of the wild"
         case .seagull: return "Richard Bach - Jonathan Livingston Seagull"
         case .cleanCode: return "Uncle Bob - Clean Code"
         }
