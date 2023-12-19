@@ -25,7 +25,7 @@ struct BookPlayerView: View {
                         CoverImageView(coverImage: Image(systemName: "book"))
                         ChapterInfoView()
                         SliderView()
-                        SpeedChangerView()
+                        SpeedChangerView(viewStore: viewStore)
                         AudioControlsView(viewStore: viewStore)
                         DummyToggleView()
                     }

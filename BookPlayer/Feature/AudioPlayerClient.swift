@@ -14,6 +14,8 @@ struct AudioPlayerClient {
   var play: @Sendable () async -> Void
   var pause: @Sendable () async -> Void
   var currentTime: @Sendable () async -> TimeInterval
+  var changePlaybackSpeed: @Sendable (Float) async -> Void
+
 }
 
 extension AudioPlayerClient: TestDependencyKey {
@@ -28,7 +30,8 @@ extension AudioPlayerClient: TestDependencyKey {
     },
     play: { await isPlaying.setValue(false) },
     pause: { await isPlaying.setValue(true) },
-    currentTime: { await currentTime.value} )
+    currentTime: { await currentTime.value},
+    changePlaybackSpeed: { float in } )
     }
     
 
@@ -36,9 +39,9 @@ extension AudioPlayerClient: TestDependencyKey {
     preparePlayer: unimplemented("\(Self.self).playerPrepared", placeholder: true),
     play: unimplemented("\(Self.self).play"),
     pause: unimplemented("\(Self.self).pause"),
-    currentTime: unimplemented("\(Self.self).currentTime"))
-  
-}
+    currentTime: unimplemented("\(Self.self).currentTime"),
+    changePlaybackSpeed: unimplemented("\(Self.self).changePlaybackSpeed"))
+  }
 
 extension DependencyValues {
   var audioPlayer: AudioPlayerClient {

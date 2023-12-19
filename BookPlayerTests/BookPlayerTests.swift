@@ -75,4 +75,49 @@ final class BookPlayerTests: XCTestCase {
         }
         await task.cancel()
     }
+    
+    func testPause() async {
+        let store = TestStore(
+            initialState: BookFeature.State(mode: .playing(progress: 0))
+        ) {
+            BookFeature()
+        } withDependencies: {
+         $0.audioPlayer.pause = { }
+        }
+      await store.send(.playButtonTapped) {
+        $0.mode = .pause
+      }
+    }
+    
+    func testChangePlaybackSpeed() async {
+        
+        let store = TestStore(initialState: BookFeature.State()){
+            BookFeature()
+        } withDependencies: {
+            $0.audioPlayer.changePlaybackSpeed = { float in }
+        }
+        
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 1.25
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 1.5
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 1.75
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 2.0
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 0.5
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 0.75
+        }
+        await store.send(.changePlaybackSpeed) {
+            $0.playbackSpeed = 1.0
+        }
+   }
+
 }

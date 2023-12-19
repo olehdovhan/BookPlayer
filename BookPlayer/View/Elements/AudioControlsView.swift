@@ -65,6 +65,12 @@ struct AudioControlsView: ViewStoreViewProtocol {
     }
 }
 
-//#Preview {
-//    AudioControlsView(viewStore: ViewStore)
-//}
+#Preview {
+    WithViewStore( Store(
+        initialState: BookFeature.State()
+    ) {
+        BookFeature()
+    }, observe: { $0 }) { viewStore in
+        AudioControlsView(viewStore: viewStore)
+    }
+}

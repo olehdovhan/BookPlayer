@@ -16,7 +16,7 @@ struct BookFeature {
         var duration: TimeInterval = 10.0
         var mode = Mode.notPlaying
         var bookCurrentTime: Double = 0.0
-
+        var playbackSpeed: Float = 1.0
         var url =  Bundle.main.url(forResource: "CleanCode", withExtension: "m4b")!
         
         @CasePathable
@@ -33,6 +33,7 @@ struct BookFeature {
         case audioPlayerClient(Result<Bool, Error>)
         case playButtonTapped
         case timerUpdated(TimeInterval)
+        case changePlaybackSpeed
 
         enum Alert: Equatable {}
     }
@@ -101,6 +102,13 @@ struct BookFeature {
                     break
                 }
                 return .none
+            case .changePlaybackSpeed:
+                let newSpeed = state.playbackSpeed + 0.25
+                state.playbackSpeed  = newSpeed > 2 ? 0.5 : newSpeed
+                return .run
+                { [speed = state.playbackSpeed] send in
+                    await self.audioPlayer.changePlaybackSpeed(speed)
+                }
             }
         }
         .ifLet(\.$alert, action: \.alert)

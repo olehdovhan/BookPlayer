@@ -4,16 +4,18 @@
 //
 //  Created by Oleh Dovhan on 18.12.2023.
 //
-
+import ComposableArchitecture
 import SwiftUI
 
-struct SpeedChangerView: View {
+struct SpeedChangerView:  ViewStoreViewProtocol {
     
-    var playbackSpeed: Float = 1.0
+    var viewStore: ComposableArchitecture.ViewStore<BookFeature.State, BookFeature.Action>
     
     var body: some View {
-        Button(action: { }) {
-            Text("Speed x\(playbackSpeed.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", playbackSpeed) : String(format: "%.2f", playbackSpeed))")
+        Button(action: { 
+            viewStore.send(.changePlaybackSpeed)
+        }) {
+            Text("Speed x\(viewStore.playbackSpeed.truncatingRemainder(dividingBy: 1) == 0 ? String(format: "%.0f", viewStore.playbackSpeed) : String(format: "%.2f", viewStore.playbackSpeed))")
                 .font(.system(size: 13, weight: .medium, design: .default))
         }
         .frame(width: 78, height: 10)
@@ -25,5 +27,11 @@ struct SpeedChangerView: View {
 }
 
 #Preview {
-    SpeedChangerView()
+    WithViewStore( Store(
+        initialState: BookFeature.State()
+    ) {
+        BookFeature()
+    }, observe: { $0 }) { viewStore in
+        SpeedChangerView(viewStore: viewStore)
+    }
 }

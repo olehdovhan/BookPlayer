@@ -15,7 +15,8 @@ extension AudioPlayerClient: DependencyKey {
         return Self(preparePlayer: { url, time in try await audioPlayer.preparePlayer(url: url, startTime: time) },
                     play: { await audioPlayer.play()},
                     pause: { await audioPlayer.pause()},
-                    currentTime: {await audioPlayer.currentTime()})
+                    currentTime: {await audioPlayer.currentTime()}, 
+                    changePlaybackSpeed: { speed in await audioPlayer.changePlaybackSpeed(speed) })
     }
 }
 
@@ -34,6 +35,13 @@ private actor AudioPlayer {
     
     func currentTime() -> Double {
         return self.player?.currentTime ?? 0.0
+    }
+    
+    func changePlaybackSpeed(_ speed: Float) {
+        self.speed = speed
+        guard let wasPlaying = self.player?.isPlaying  else { return }
+        self.player?.rate = speed
+        if !wasPlaying { self.player?.pause() }
     }
 
     func preparePlayer(url: URL, startTime: Double) async throws -> Bool {
