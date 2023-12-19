@@ -31,8 +31,11 @@ struct BookPlayerView: View {
                     .padding(0)
                     .foregroundColor(.black)
                 }
-                .alert(store: self.store.scope(state: \.$alert, action: \.alert))
                 .padding()
+                .alert(store: self.store.scope(state: \.$alert, action: \.alert))
+                .onDisappear {
+                    viewStore.send(.stopPlayer)
+                }
         }
     }
 }

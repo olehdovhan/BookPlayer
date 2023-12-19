@@ -53,10 +53,15 @@ struct BookFeature {
         case playButtonTapped
         case timerUpdated(TimeInterval)
         case changePlaybackSpeed
+        case defaultPlaybackSpeed
         case nextChapter
         case previousChapter
         case progressChanged(Double)
         case updateSliderStatus(Bool)
+        case backward(seconds: Double)
+        case forward(seconds: Double)
+        case stopPlayer
+
 
         enum Alert: Equatable {}
     }
@@ -145,6 +150,13 @@ struct BookFeature {
                 { [speed = state.playbackSpeed] send in
                     await self.audioPlayer.changePlaybackSpeed(speed)
                 }
+                
+            case .defaultPlaybackSpeed:
+                state.playbackSpeed = 1.0
+                return .run { [speed = state.playbackSpeed] send in
+                        await self.audioPlayer.changePlaybackSpeed(speed)
+                }
+
             case .nextChapter:
                 if state.chapters.count > state.currentChapterIndex + 1 {
                     state.currentChapterIndex += 1
@@ -173,6 +185,37 @@ struct BookFeature {
             case let .updateSliderStatus(isDragging):
                 state.sliderIsDragging = isDragging
                 return .none
+            case .backward(seconds: let seconds):
+                let expectedTime = state.bookCurrentTime - seconds
+                let seekToTime = expectedTime > state.currentChapter.start ? expectedTime : state.currentChapter.start
+                state.bookCurrentTime = seekToTime
+                let newProgress = state.chapterCurrentTime / state.currentChapter.duration
+                if !state.sliderIsDragging {
+                    state.progress = newProgress
+                    }
+                return .run {[seekToTime] _ in
+                    await self.audioPlayer.seekTo(seekToTime)
+                }
+            case .forward(seconds: let seconds):
+                let expectedTime = state.bookCurrentTime + seconds
+                let seekToTime = expectedTime < state.currentChapter.end ? expectedTime : state.currentChapter.end
+                state.bookCurrentTime = seekToTime
+                let newProgress = state.chapterCurrentTime / state.currentChapter.duration
+                if !state.sliderIsDragging {
+                    state.progress = newProgress
+                    }
+                return .run { [seekToTime] _ in
+                    await self.audioPlayer.seekTo(seekToTime)
+                }
+            case .stopPlayer:
+                state.currentChapterIndex = 0
+                state.progress = 0.0
+                state.bookCurrentTime = 0.0
+                state.playbackSpeed = 1.0
+                state.mode = .notPlaying
+                
+                return .merge(.send(.defaultPlaybackSpeed),
+                                    .cancel(id: CancelID.play))
             }
         }
         .ifLet(\.$alert, action: \.alert)
