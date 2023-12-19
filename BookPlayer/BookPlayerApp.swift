@@ -12,7 +12,7 @@ import SwiftUI
 struct BookPlayerApp: App {
     var body: some Scene {
         WindowGroup {
-            BookPlayerView(store: Store(initialState: BookFeature.State()) { BookFeature() })
+            PreviewView()
         }
     }
 }

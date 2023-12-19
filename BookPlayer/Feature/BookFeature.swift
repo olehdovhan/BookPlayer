@@ -19,6 +19,10 @@ struct BookFeature {
         var playbackSpeed: Float = 1.0
         var url =  Bundle.main.url(forResource: "CleanCode", withExtension: "m4b")!
         
+        var coverImage = Image(systemName: "book")
+
+        var chapters: [Chapter]
+        
         @CasePathable
         @dynamicMemberLookup
         enum Mode: Equatable {

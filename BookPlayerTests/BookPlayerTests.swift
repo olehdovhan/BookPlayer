@@ -119,5 +119,4 @@ final class BookPlayerTests: XCTestCase {
             $0.playbackSpeed = 1.0
         }
    }
-
 }

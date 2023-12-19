@@ -28,7 +28,7 @@ struct SpeedChangerView:  ViewStoreViewProtocol {
 
 #Preview {
     WithViewStore( Store(
-        initialState: BookFeature.State()
+        initialState: BookFeature.State(chapters: [])
     ) {
         BookFeature()
     }, observe: { $0 }) { viewStore in

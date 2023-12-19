@@ -41,7 +41,7 @@ struct BookPlayerView: View {
 
 #Preview {
     BookPlayerView(store: Store(
-        initialState: BookFeature.State()
+        initialState: BookFeature.State(chapters: [])
     ) {
         BookFeature()
     })
