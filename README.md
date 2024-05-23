@@ -1,19 +1,22 @@
 # BookPlayer
 
-## Тестове завдання 
+## Test Assignment
 
 ![plot](BookPlayer/Media/Listening.png)
 ￼
-### В рамках даного тестового завдання я розробив міні-додаток для прослуховування книги з наступним функціоналом: 
-* Play/pause аудіо
-* Перемикання між главами книги
-* Регулювання швидкості відтворення
-* Перемотування аудіо вперед/назад на певний проміжок часу
+### As part of this test task, I developed a mini-application for listening to a book with the following functionality:
 
-### Використав такі технології:  
-*  SwiftUI: Для створення UI
-* Swift Concurrency: Для асинхронного програмування
-* TCA: Для створення гнучкої архітектури
-* Unit тестування для ключових компонентів додатку  
+* Play/pause audio
+* Switching between chapters of the book
+* Adjusting playback speed
+* Rewinding audio forward/backward by a certain time interval
 
-### Примітка:  PreviewView - не є частиною ТЗ, а створений для тестування на різних книгах.
+
+### I used the following technologies:
+
+* SwiftUI: For creating the UI
+* Swift Concurrency: For asynchronous programming
+* TCA: For creating a flexible architecture
+* Unit testing for key components of the application
+
+
